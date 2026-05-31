@@ -1,0 +1,153 @@
+package com.startechnologybeyond.symbiotic_swiss_knife.recipe.recipes;
+
+import com.google.gson.JsonObject;
+import com.gregtechceu.gtceu.api.item.IGTTool;
+import com.gregtechceu.gtceu.api.item.tool.GTToolType;
+import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.MultitoolItem;
+import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.SymbioticMultitoolItems;
+import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.MultitoolMode;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.Level;
+
+public class MultitoolInstallModeRecipe extends CustomRecipe {
+
+    public static final RecipeSerializer<MultitoolInstallModeRecipe> SERIALIZER = new MultitoolInstallModeRecipe.Serializer();
+
+    public MultitoolInstallModeRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, category);
+    }
+
+    @Override
+    public boolean matches(CraftingContainer container, Level level) {
+        ItemStack multitool = ItemStack.EMPTY;
+        ItemStack tool = ItemStack.EMPTY;
+
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            ItemStack stack = container.getItem(i);
+            if (stack.isEmpty())
+                continue;
+
+            if (stack.getItem() instanceof MultitoolItem) {
+                if (!multitool.isEmpty())
+                    return false;
+                multitool = stack;
+            } else if (stack.getItem() instanceof IGTTool) {
+                if (!tool.isEmpty())
+                    return false;
+                tool = stack;
+            } else {
+                return false;
+            }
+        }
+
+        if (multitool.isEmpty() || tool.isEmpty())
+            return false;
+
+        // only accept fully undamaged tools
+        if (tool.getDamageValue() != 0)
+            return false;
+
+        // check the tool type isn't already installed
+        GTToolType toolType = ((IGTTool) tool.getItem()).getToolType();
+        return !MultitoolMode.isInstalled(multitool, toolType);
+    }
+
+    @Override
+    public ItemStack assemble(CraftingContainer container, net.minecraft.core.RegistryAccess registryAccess) {
+        // find the multitool and tool since we need to combine
+        // them for the assemble result
+        ItemStack multitool = ItemStack.EMPTY;
+        ItemStack tool = ItemStack.EMPTY;
+
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            ItemStack stack = container.getItem(i);
+            if (stack.isEmpty())
+                continue;
+            if (stack.getItem() instanceof MultitoolItem) {
+                multitool = stack;
+            } else if (stack.getItem() instanceof IGTTool) {
+                tool = stack;
+            }
+        }
+
+        if (multitool.isEmpty() || tool.isEmpty())
+            return ItemStack.EMPTY;
+
+        // get the tool type and material so we can add it to the multitool as a mode
+        IGTTool gtTool = (IGTTool) tool.getItem();
+        GTToolType toolType = gtTool.getToolType();
+        var material = gtTool.getMaterial();
+
+        // install the mode into a copy of the multitool with the same nbt
+        ItemStack nbtSource = multitool.copy();
+        nbtSource.setCount(1);
+        MultitoolMode.install(nbtSource, toolType, material);
+
+        // figure out what the active mode is now so we can
+        // return the correct physical item variant for it
+        MultitoolMode active = MultitoolMode.getActive(nbtSource);
+        if (active == null)
+            return ItemStack.EMPTY;
+
+        var targetEntry = SymbioticMultitoolItems.MULTITOOLS.get(active.toolType());
+        if (targetEntry == null)
+            return ItemStack.EMPTY;
+
+        // build the result as the correct item variant, carrying all the nbt
+        ItemStack result = new ItemStack(targetEntry.get());
+        if (nbtSource.hasTag()) {
+            result.setTag(nbtSource.getTag().copy());
+        }
+
+        return result;
+    }
+
+    @Override
+    public NonNullList<Ingredient> getIngredients() {
+        // we cant really express the ingredients statically
+        return NonNullList.create();
+    }
+
+    @Override
+    public boolean canCraftInDimensions(int width, int height) {
+        return width * height >= 2;
+    }
+
+    @Override
+    public RecipeSerializer<?> getSerializer() {
+        return SERIALIZER;
+    }
+
+    @Override
+    public NonNullList<ItemStack> getRemainingItems(CraftingContainer container) {
+        // nothing should remain after we craft, consume the multitool/gt tool
+        // essentially
+        NonNullList<ItemStack> remaining = NonNullList.withSize(container.getContainerSize(), ItemStack.EMPTY);
+        return remaining;
+    }
+
+    public static class Serializer implements RecipeSerializer<MultitoolInstallModeRecipe> {
+        @Override
+        public MultitoolInstallModeRecipe fromJson(ResourceLocation id, JsonObject json) {
+            return new MultitoolInstallModeRecipe(id, CraftingBookCategory.MISC);
+        }
+
+        @Override
+        public MultitoolInstallModeRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
+            return new MultitoolInstallModeRecipe(id, CraftingBookCategory.MISC);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buf, MultitoolInstallModeRecipe recipe) {
+            // nothing to write
+        }
+    }
+}

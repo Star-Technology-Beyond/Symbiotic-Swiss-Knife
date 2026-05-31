@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.startechnologybeyond.symbiotic_swiss_knife.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "mixins": [
+    "MultitoolDamageMixin",
+    "PipeBlockMultitoolShapeMixin",
+    "ShapedRecipeMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
