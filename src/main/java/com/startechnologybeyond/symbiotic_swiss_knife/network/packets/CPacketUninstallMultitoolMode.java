@@ -69,7 +69,8 @@ public class CPacketUninstallMultitoolMode implements IPacket {
         Material material = MultitoolMode.getMaterialForType(multitool, type);
         if (material == null)
             return;
-
+        
+        long maxCharge = MultitoolMode.getMaxCharge(multitool, type);
         MultitoolMode.uninstall(multitool, type);
 
         // get active mode from uninstalling for updating
@@ -113,10 +114,15 @@ public class CPacketUninstallMultitoolMode implements IPacket {
         // its an electric item, but for that we need
         // to retrieve the max energy from the power unit
         if (gtTool.isElectric()) {
-            ItemStack powerUnit = SymbioticItems.EXTENDED_POWER_UNITS.get(gtTool.getElectricTier()).asStack();
-            IElectricItem powerUnitCap = GTCapabilityHelper.getElectricItem(powerUnit);
-            long maxCharge = powerUnitCap != null ? powerUnitCap.getMaxCharge()
-                    : GTValues.V[gtTool.getElectricTier()] * 100L;
+            if (maxCharge <= 0) {
+                // reconstruct from a fresh power unit as a fall back to be kind to the player.
+                ItemStack powerUnit = SymbioticItems.EXTENDED_POWER_UNITS.get(gtTool.getElectricTier()).asStack();
+                IElectricItem powerUnitCap = GTCapabilityHelper.getElectricItem(powerUnit);
+
+                // no power unit? fall back to just 100L times the tier.
+                maxCharge = powerUnitCap != null ? powerUnitCap.getMaxCharge()
+                        : GTValues.V[gtTool.getElectricTier()] * 100L;
+            }
             ejected = gtTool.get(0L, maxCharge);
         } else {
             ejected = gtTool.get();

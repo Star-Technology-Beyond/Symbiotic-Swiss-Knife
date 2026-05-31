@@ -12,6 +12,7 @@ import com.startechnologybeyond.symbiotic_swiss_knife.item.SymbioticItems;
 import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.SymbioticMultitoolItems;
 
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public class MultitoolRecipe {
@@ -20,7 +21,33 @@ public class MultitoolRecipe {
         multitoolRecipe(provider);
     }
 
+    public static void powerUnitRecipe(Consumer<FinishedRecipe> provider, ItemStack ingredientStack, String name) {
+            VanillaRecipeHelper.addShapedEnergyTransferRecipe(
+                provider,
+                true,
+                false,
+                true,
+                "luv_power_unit" + name,
+
+                Ingredient.of(ingredientStack.copy()),
+                SymbioticItems.POWER_UNIT_LuV.asStack(),
+
+                "X d",
+                "PMP",
+                "NUN",
+
+                'S', GTToolType.SCREWDRIVER,
+                'U', ingredientStack.copy(),
+                'M', GTItems.ELECTRIC_MOTOR_LuV.asStack(),
+                'N', new MaterialEntry(TagPrefix.plate, GTMaterials.RhodiumPlatedPalladium),
+                'P', new MaterialEntry(TagPrefix.gearSmall, GTMaterials.RhodiumPlatedPalladium),
+                'X', new MaterialEntry(TagPrefix.screw, GTMaterials.RhodiumPlatedPalladium));
+    }
+
     public static void multitoolRecipe(Consumer<FinishedRecipe> provider) {
+        powerUnitRecipe(provider, GTItems.BATTERY_LuV_VANADIUM.asStack(), "battery");
+        powerUnitRecipe(provider, GTItems.ENERGY_LAPOTRONIC_ORB_CLUSTER.asStack(), "energy_cluster");
+
         VanillaRecipeHelper.addShapedEnergyTransferRecipe(
                 provider,
                 true,

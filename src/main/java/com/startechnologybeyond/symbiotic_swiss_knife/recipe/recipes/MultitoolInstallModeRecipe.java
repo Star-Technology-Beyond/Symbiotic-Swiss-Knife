@@ -1,6 +1,8 @@
 package com.startechnologybeyond.symbiotic_swiss_knife.recipe.recipes;
 
 import com.google.gson.JsonObject;
+import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
+import com.gregtechceu.gtceu.api.capability.IElectricItem;
 import com.gregtechceu.gtceu.api.item.IGTTool;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
 import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.MultitoolItem;
@@ -89,7 +91,15 @@ public class MultitoolInstallModeRecipe extends CustomRecipe {
         // install the mode into a copy of the multitool with the same nbt
         ItemStack nbtSource = multitool.copy();
         nbtSource.setCount(1);
+
         MultitoolMode.install(nbtSource, toolType, material);
+
+        if (gtTool.isElectric()) {
+            IElectricItem electricItem = GTCapabilityHelper.getElectricItem(tool);
+            if (electricItem != null) {
+                MultitoolMode.setMaxCharge(nbtSource, toolType, electricItem.getMaxCharge());
+            }
+        }
 
         // figure out what the active mode is now so we can
         // return the correct physical item variant for it

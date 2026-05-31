@@ -22,6 +22,7 @@ public class MultitoolMode {
     public static final String TAG_INSTALLED = "installedModes";
     public static final String TAG_MATERIAL = "modeMaterial";
     public static final String TAG_SINGLE_BLOCK = "singleBlockMode";
+    public static final String TAG_MAX_CHARGE = "modeMaxCharge";
 
     // store the tool type and material of this mode
     private final GTToolType toolType;
@@ -157,6 +158,7 @@ public class MultitoolMode {
 
         tag.put(TAG_INSTALLED, newList);
         tag.remove(TAG_MATERIAL + type.name);
+        tag.remove(TAG_MAX_CHARGE + type.name);
 
         // if active mode was this one then switch to first available
         String active = tag.getString(TAG_KEY);
@@ -267,5 +269,17 @@ public class MultitoolMode {
 
     public static void toggleSingleBlockMode(ItemStack stack) {
         setSingleBlockMode(stack, !isSingleBlockMode(stack));
+    }
+
+    // we need to track max charge as electric tools can be made from a wide variety of
+    // batteries
+    public static void setMaxCharge(ItemStack stack, GTToolType type, long maxCharge) {
+        stack.getOrCreateTag().putLong(TAG_MAX_CHARGE + type.name, maxCharge);
+    }
+
+    public static long getMaxCharge(ItemStack stack, GTToolType type) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return 0L;
+        return tag.getLong(TAG_MAX_CHARGE + type.name);
     }
 }
