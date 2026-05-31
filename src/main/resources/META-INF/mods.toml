@@ -19,7 +19,6 @@ license = "${mod_license}"
     # Some more fluff displayed in the Mods panel. Plug your stuff here!
     authors="${mod_author}"
     description = '''
-Example Description
 Adds a GregTech multitool to the game named the "Symbiotic Swiss Knife"
 '''
 
