@@ -29,6 +29,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.Set;
+
 import org.lwjgl.glfw.GLFW;
 
 @Mod.EventBusSubscriber(modid = SymbioticSwissKnife.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -70,7 +72,7 @@ public class MultitoolClientEvents {
             if (minecraft.player == null)
                 return;
 
-             // opens the new multitool radial screen if the key is pressed
+            // opens the new multitool radial screen if the key is pressed
             if (minecraft.screen == null && event.getAction() == GLFW.GLFW_PRESS &&
                     OPEN_SELECTOR.matches(event.getKey(), event.getScanCode())) {
                 HeldMultitool held = getHeldMultitool();
@@ -146,13 +148,19 @@ public class MultitoolClientEvents {
             if (hit == null || hit.getType() != HitResult.Type.BLOCK)
                 return false;
 
-             // determine the id of the block the player is looking at
+            // determine the id of the block the player is looking at
             BlockPos pos = ((BlockHitResult) hit).getBlockPos();
             var blockState = minecraft.level.getBlockState(pos);
             String blockId = ForgeRegistries.BLOCKS.getKey(blockState.getBlock()).toString();
 
-           // mode select to server
-            SymbioticNetwork.NETWORK.sendToServer(new CPacketMiddleClickAutoSelect(held.hand(), blockId));
+            // collect all tag IDs this block belongs to
+            Set<String> blockTags = blockState.getTags()
+                    .map(tagKey -> tagKey.location().toString())
+                    .collect(java.util.stream.Collectors.toSet());
+
+            // mode select to server
+            SymbioticNetwork.NETWORK.sendToServer(
+                    new CPacketMiddleClickAutoSelect(held.hand(), blockId, blockTags));
 
             // send message to client
             minecraft.player.displayClientMessage(

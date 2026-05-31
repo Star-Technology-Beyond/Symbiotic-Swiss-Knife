@@ -30,7 +30,7 @@ public class LangHandler {
         provider.add("item.symbiotic_swiss_knife.gregtech_multitool.single_block_off", "§7Single Block: OFF");
         provider.add("item.symbiotic_swiss_knife.gregtech_multitool.auto_select_btn", "§7Auto Config");
         provider.add("item.symbiotic_swiss_knife.gregtech_multitool.auto_select", "Auto Selecting Tool");
-        provider.add("item.symbiotic_swiss_knife.gregtech_multitool.regex_pattern_placeholder", "regex pattern..");
+        provider.add("item.symbiotic_swiss_knife.gregtech_multitool.regex_pattern_placeholder", "block pattern..");
         provider.add("item.symbiotic_swiss_knife.gregtech_multitool.auto_select_rules_header", "Customise Auto Select Rules");
         provider.add("item.symbiotic_swiss_knife.gregtech_multitool.pattern_header", "PATTERN");
         provider.add("item.symbiotic_swiss_knife.gregtech_multitool.tool_header", "TOOL");

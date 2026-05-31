@@ -13,31 +13,48 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class CPacketMiddleClickAutoSelect implements IPacket {
 
     private static final int MAX_BLOCK_ID_LENGTH = 256;
+    private static final int MAX_TAG_COUNT = 128;
+    private static final int MAX_TAG_LENGTH = 256;
 
     private int handOrdinal;
     private String blockId;
+    private Set<String> blockTags;
 
     public CPacketMiddleClickAutoSelect() {
     }
 
-    public CPacketMiddleClickAutoSelect(InteractionHand hand, String blockId) {
+    public CPacketMiddleClickAutoSelect(InteractionHand hand, String blockId, Set<String> blockTags) {
         this.handOrdinal = hand.ordinal();
         this.blockId = blockId;
+        this.blockTags = blockTags;
     }
 
     @Override
     public void encode(FriendlyByteBuf buf) {
         buf.writeVarInt(handOrdinal);
         buf.writeUtf(blockId, MAX_BLOCK_ID_LENGTH);
+        Set<String> tags = blockTags != null ? blockTags : Set.of();
+        buf.writeVarInt(tags.size());
+        for (String tag : tags) {
+            buf.writeUtf(tag, MAX_TAG_LENGTH);
+        }
     }
 
     @Override
     public void decode(FriendlyByteBuf buf) {
         handOrdinal = buf.readVarInt();
         blockId = buf.readUtf(MAX_BLOCK_ID_LENGTH);
+        int tagCount = Math.min(buf.readVarInt(), MAX_TAG_COUNT);
+        blockTags = new HashSet<>(tagCount);
+        for (int i = 0; i < tagCount; i++) {
+            blockTags.add(buf.readUtf(MAX_TAG_LENGTH));
+        }
     }
 
     @Override
@@ -51,16 +68,19 @@ public class CPacketMiddleClickAutoSelect implements IPacket {
         if (!(stack.getItem() instanceof MultitoolItem))
             return;
 
-        // allow matching on full id and short id for reegex
+        // allow matching on full id and short id for regex
         String shortId = blockId.contains(":") ? blockId.split(":", 2)[1] : blockId;
+        Set<String> tags = blockTags != null ? blockTags : Set.of();
 
-        // try full id first then short field
-        MultitoolMode best = MultitoolAutoSelectRules.findBestMode(stack, blockId);
+        // try full id + tags first, then fall back to short id + tags
+        MultitoolMode best = MultitoolAutoSelectRules.findBestMode(stack, blockId, tags);
         if (best == null) {
-            best = MultitoolAutoSelectRules.findBestMode(stack, shortId);
+            best = MultitoolAutoSelectRules.findBestMode(stack, shortId, tags);
         }
+
         if (best == null) {
-            handler.getPlayer().sendSystemMessage(Component.translatable("message.symbiotic_swiss_knife.auto_select.no_match"));
+            handler.getPlayer().sendSystemMessage(Component.translatable(
+                    "message.symbiotic_swiss_knife.auto_select.no_match"));
             return;
         }
 

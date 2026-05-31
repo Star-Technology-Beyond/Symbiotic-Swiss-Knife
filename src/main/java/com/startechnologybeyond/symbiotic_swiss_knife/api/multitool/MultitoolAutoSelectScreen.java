@@ -403,7 +403,7 @@ public class MultitoolAutoSelectScreen extends Screen {
         // since rules can overflow the little row
         // and we want to show the entire rule
         if (hoveredRow >= 0 && hoveredRow < rules.size()) {
-            String regex = rules.get(hoveredRow).regex();
+            String regex = rules.get(hoveredRow).pattern();
             if (font.width(regex) > COL_BADGE_X - COL_REGEX_X - PADDING_OUTER) {
                 g.renderComponentTooltip(font, List.of(Component.literal(regex).withStyle(ChatFormatting.YELLOW)),
                         mouseX, mouseY);
@@ -422,7 +422,7 @@ public class MultitoolAutoSelectScreen extends Screen {
         // draw the rule text, truncate to fit the size tho
         // (hover handles full string)
         int maxTextW = COL_BADGE_X - COL_REGEX_X - PADDING_OUTER;
-        String text = rule.regex();
+        String text = rule.pattern();
         if (font.width(text) > maxTextW) {
             text = font.plainSubstrByWidth(text, maxTextW - TEXT_ELLIPSIS_TRIM) + "…";
         }
@@ -535,7 +535,7 @@ public class MultitoolAutoSelectScreen extends Screen {
             if (tIdx >= 0 && tIdx < ALL_TOOLS.size()) {
                 if (dropdownRow >= 0 && dropdownRow < rules.size()) {
                     Rule r = rules.get(dropdownRow);
-                    rules.set(dropdownRow, new Rule(r.regex(), ALL_TOOLS.get(tIdx)));
+                    rules.set(dropdownRow, new Rule(r.pattern(), ALL_TOOLS.get(tIdx)));
                 } else {
                     addToolIdx = tIdx;
                 }

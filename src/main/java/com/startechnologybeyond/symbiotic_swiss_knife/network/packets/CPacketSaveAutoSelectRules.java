@@ -36,7 +36,7 @@ public class CPacketSaveAutoSelectRules implements IPacket {
 
         // encode all the rules
         for (MultitoolAutoSelectRules.Rule rule : rules) {
-            buf.writeUtf(rule.regex(), MAX_STR_LENGTH);
+            buf.writeUtf(rule.pattern(), MAX_STR_LENGTH);
             buf.writeUtf(rule.toolTypeName(), 128);
         }
     }
