@@ -7,6 +7,7 @@ import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.MultitoolIt
 import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.SymbioticMultitoolItems;
 import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.MultitoolMode;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -58,8 +59,10 @@ public class CPacketMiddleClickAutoSelect implements IPacket {
         if (best == null) {
             best = MultitoolAutoSelectRules.findBestMode(stack, shortId);
         }
-        if (best == null)
+        if (best == null) {
+            handler.getPlayer().sendSystemMessage(Component.translatable("message.symbiotic_swiss_knife.auto_select.no_match"));
             return;
+        }
 
         // only switch if it's actually a different mode
         MultitoolMode current = MultitoolMode.getActive(stack);

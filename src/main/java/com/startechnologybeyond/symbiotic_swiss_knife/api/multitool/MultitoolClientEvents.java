@@ -54,7 +54,8 @@ public class MultitoolClientEvents {
         SymbioticMultitoolItems.MULTITOOLS.values().forEach(itemEntry -> {
             event.register((stack, tintIndex) -> {
                 MultitoolMode active = MultitoolMode.getActive(stack);
-                if (active == null) return 0xFFFFFF;
+                if (active == null)
+                    return 0xFFFFFF;
                 return tintIndex == 0 ? active.material().getMaterialRGB() : 0xFFFFFF;
             }, itemEntry.get());
         });
@@ -66,15 +67,61 @@ public class MultitoolClientEvents {
         @SubscribeEvent
         public static void onKeyInput(InputEvent.Key event) {
             Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.screen != null || event.getAction() != GLFW.GLFW_PRESS ||
-                    !OPEN_SELECTOR.matches(event.getKey(), event.getScanCode())) {
+            if (minecraft.player == null)
                 return;
+
+             // opens the new multitool radial screen if the key is pressed
+            if (minecraft.screen == null && event.getAction() == GLFW.GLFW_PRESS &&
+                    OPEN_SELECTOR.matches(event.getKey(), event.getScanCode())) {
+                HeldMultitool held = getHeldMultitool();
+                if (held != null) {
+                    minecraft.setScreen(new MultitoolRadialScreen(held.stack(), held.hand()));
+                    return;
+                }
             }
 
-            // opens the new multitool radial screen if the key is pressed
-            HeldMultitool held = getHeldMultitool();
-            if (held != null) {
-                minecraft.setScreen(new MultitoolRadialScreen(held.stack(), held.hand()));
+            // single click release for keyboard attack
+            if (minecraft.options.keyAttack.matches(event.getKey(), event.getScanCode()) &&
+                    event.getAction() == GLFW.GLFW_RELEASE) {
+                HeldMultitool held = getHeldMultitool();
+                if (held != null && MultitoolMode.isSingleBlockMode(held.stack())) {
+                    SymbioticNetwork.NETWORK.sendToServer(new CPacketReleaseSingleBlockLock(held.hand()));
+                }
+            }
+        }
+
+        @SubscribeEvent
+        public static void onMouseButton(InputEvent.MouseButton event) {
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player == null)
+                return;
+
+            // single click releaese for mouse
+            if (minecraft.options.keyAttack.matchesMouse(event.getButton()) &&
+                    event.getAction() == GLFW.GLFW_RELEASE) {
+                HeldMultitool held = getHeldMultitool();
+                if (held != null && MultitoolMode.isSingleBlockMode(held.stack())) {
+                    SymbioticNetwork.NETWORK.sendToServer(new CPacketReleaseSingleBlockLock(held.hand()));
+                }
+            }
+        }
+
+        @SubscribeEvent
+        public static void onInteractionKeyMapping(InputEvent.InteractionKeyMappingTriggered event) {
+            // pick block for auto select
+            if (event.isPickBlock()) {
+                Minecraft minecraft = Minecraft.getInstance();
+                if (minecraft.player == null || minecraft.screen != null)
+                    return;
+
+                HeldMultitool held = getHeldMultitool();
+                if (held == null)
+                    return;
+
+                // cancel event if we auto select successfully
+                if (tryAutoSelect(minecraft, held)) {
+                    event.setCanceled(true);
+                }
             }
         }
 
@@ -94,55 +141,27 @@ public class MultitoolClientEvents {
             event.setCanceled(true);
         }
 
-        @SubscribeEvent
-        public static void onMouseButton(InputEvent.MouseButton event) {
-            // single click mode should prevent for client
-            // breaking multiple blocks at once until release
-            if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT && 
-                event.getAction() == GLFW.GLFW_RELEASE) {
-
-                Minecraft minecraft = Minecraft.getInstance();
-                if (minecraft.player == null) return;
-
-                HeldMultitool held = getHeldMultitool();
-                if (held == null) return;
-
-                // only bother sending if single block mode is actually on
-                if (MultitoolMode.isSingleBlockMode(held.stack())) {
-                    SymbioticNetwork.NETWORK.sendToServer(new CPacketReleaseSingleBlockLock(held.hand()));
-                }
-            }
-
-            // middle click mode for auto-select
-            if (event.getButton() != GLFW.GLFW_MOUSE_BUTTON_MIDDLE ||
-                event.getAction() != GLFW.GLFW_PRESS) return;
- 
-            Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.player == null || minecraft.screen != null) return;
-    
-            HeldMultitool held = getHeldMultitool();
-            if (held == null) return;
-    
-            // determine the id of the block the player is looking at
+        private static boolean tryAutoSelect(Minecraft minecraft, HeldMultitool held) {
             HitResult hit = minecraft.hitResult;
-            if (hit == null || hit.getType() != HitResult.Type.BLOCK) return;
-    
+            if (hit == null || hit.getType() != HitResult.Type.BLOCK)
+                return false;
+
+             // determine the id of the block the player is looking at
             BlockPos pos = ((BlockHitResult) hit).getBlockPos();
             var blockState = minecraft.level.getBlockState(pos);
             String blockId = ForgeRegistries.BLOCKS.getKey(blockState.getBlock()).toString();
-    
-            // mode select middle click to server
+
+           // mode select to server
             SymbioticNetwork.NETWORK.sendToServer(new CPacketMiddleClickAutoSelect(held.hand(), blockId));
-    
+
             // send message to client
             minecraft.player.displayClientMessage(
                     Component.translatable("item.symbiotic_swiss_knife.gregtech_multitool.auto_select",
                             Component.literal(blockId).withStyle(ChatFormatting.GRAY))
                             .withStyle(ChatFormatting.AQUA),
                     true);
-    
-            event.setCanceled(true);
 
+            return true;
         }
     }
 

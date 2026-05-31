@@ -160,9 +160,6 @@ public class MultitoolAutoSelectScreen extends Screen {
         this.stack = stack;
         this.hand = hand;
         this.rules = new ArrayList<>(MultitoolAutoSelectRules.getRules(stack));
-        if (this.rules.isEmpty()) {
-            this.rules.addAll(MultitoolAutoSelectRules.DEFAULTS);
-        }
     }
 
     private int panelX() {

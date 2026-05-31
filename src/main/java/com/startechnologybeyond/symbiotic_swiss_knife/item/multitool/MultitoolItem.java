@@ -493,6 +493,9 @@ public class MultitoolItem extends GTToolItem {
             tooltipComponents.add(Component.empty());
             tooltipComponents.add(Component.translatable("item.symbiotic_swiss_knife.gregtech_multitool.l9"));
             tooltipComponents.add(Component.translatable("block.symbiotic_swiss_knife.breaker_line"));
+            tooltipComponents.add(Component.translatable("item.symbiotic_swiss_knife.gregtech_multitool.l10"));
+            tooltipComponents.add(Component.translatable("item.symbiotic_swiss_knife.gregtech_multitool.l11"));
+            tooltipComponents.add(Component.translatable("block.symbiotic_swiss_knife.breaker_line"));
         }
 
         List<MultitoolMode> installed = MultitoolMode.getInstalled(stack);

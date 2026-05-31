@@ -90,15 +90,6 @@ public class MultitoolAutoSelectRules {
         stack.getOrCreateTag().put(TAG_RULES, list);
     }
 
-    // writes all the defaults to a stack's tags to ensure
-    // that the tag is present
-    public static void ensureDefaults(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null || !tag.contains(TAG_RULES, Tag.TAG_LIST)) {
-            setRules(stack, new ArrayList<>(DEFAULTS));
-        }
-    }
-
     // finds the first/best mode for which matches this block id to the multitoolo
     // stack
     public static MultitoolMode findBestMode(ItemStack stack, String blockId) {

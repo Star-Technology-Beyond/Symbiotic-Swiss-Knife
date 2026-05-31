@@ -10,13 +10,15 @@
   "item.symbiotic_swiss_knife.gregtech_multitool.hint": "Hold the multitool selector key or scroll while holding to swap tool modes.",
   "item.symbiotic_swiss_knife.gregtech_multitool.installed": "Installed Modes:",
   "item.symbiotic_swiss_knife.gregtech_multitool.l1": "§dTool Installation:",
+  "item.symbiotic_swiss_knife.gregtech_multitool.l10": "§eSingle Block Mode:",
+  "item.symbiotic_swiss_knife.gregtech_multitool.l11": "§7This mode can be enabled in the selector menu. This mode will limit block breaking with any tool such that for one break action, only one block can be broken until the button is released.",
   "item.symbiotic_swiss_knife.gregtech_multitool.l2": "§7Install tools by combining this with other full durability tools in a crafting table. §7Only §fone§7 tool of a type may be installed at any time.",
   "item.symbiotic_swiss_knife.gregtech_multitool.l3": "§7Tools can be ejected by holding shift and clicking in the multitool selector. Inserted tools do not keep their enchantments or charge!",
   "item.symbiotic_swiss_knife.gregtech_multitool.l5": "§aPower Unit:",
   "item.symbiotic_swiss_knife.gregtech_multitool.l6": "§7When using a tool, the knife consumes energy from its power unit unless the active tool is unbreakable. The power unit must be recharged if it goes down to §b0§7.",
   "item.symbiotic_swiss_knife.gregtech_multitool.l7": "§eSymbiosis",
   "item.symbiotic_swiss_knife.gregtech_multitool.l8": "§7Tools can be manually swapped between by scrolling with the knife held or using the selector menu that can be opened with the multitool selector key.",
-  "item.symbiotic_swiss_knife.gregtech_multitool.l9": "§7Middle clicking a block will attempt to select the best tool for the block's functions. If there are multiple options, the priority is the tool installation order with oldest first.",
+  "item.symbiotic_swiss_knife.gregtech_multitool.l9": "§7Pick block will attempt to select the best tool for the block's functions. This can be customised by pressing the config button in the selector menu.",
   "item.symbiotic_swiss_knife.gregtech_multitool.line": "§c§lGregTech Multitool",
   "item.symbiotic_swiss_knife.gregtech_multitool.pattern_header": "PATTERN",
   "item.symbiotic_swiss_knife.gregtech_multitool.regex_pattern_placeholder": "regex pattern..",
@@ -30,5 +32,6 @@
   "key.symbiotic_swiss_knife.multitool_selector": "Open Multitool Selector",
   "key.symbiotic_swiss_knife.multitool_selector.eject": "Click to eject tool",
   "key.symbiotic_swiss_knife.multitool_selector.hint": "Scroll or Mouse to select",
+  "message.symbiotic_swiss_knife.auto_select.no_match": "§cNo match found",
   "tab.symbiotic_swiss_knife.creative": "Symbiotic Swiss Knife"
 }
