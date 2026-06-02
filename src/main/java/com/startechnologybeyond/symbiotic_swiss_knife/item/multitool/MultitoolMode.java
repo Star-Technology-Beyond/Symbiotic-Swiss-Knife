@@ -23,6 +23,7 @@ public class MultitoolMode {
     public static final String TAG_MATERIAL = "modeMaterial";
     public static final String TAG_SINGLE_BLOCK = "singleBlockMode";
     public static final String TAG_MAX_CHARGE = "modeMaxCharge";
+    public static final String TAG_BEHAVIORS = "modeBehaviors";
 
     // store the tool type and material of this mode
     private final GTToolType toolType;
@@ -49,26 +50,51 @@ public class MultitoolMode {
         return toolType.name;
     }
 
-    public static void syncBehaviorsTag(ItemStack multiStack, GTToolType type, Material material) {
-        var entry = GTMaterialItems.TOOL_ITEMS.get(material, type);
-        if (entry == null)
-            return;
-        ItemStack reference = entry.get().get();
-        if (reference.isEmpty())
-            return;
+    public static void saveCurrentBehaviors(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return;
 
-        // we ripoff the reference behaviours from the behaviours tag of this reference
-        // item
-        CompoundTag refBehaviors = reference.getTagElement(ToolHelper.BEHAVIOURS_TAG_KEY);
-        CompoundTag multiTag = multiStack.getOrCreateTag();
+        String activeName = tag.getString(TAG_KEY);
+        if (activeName == null || activeName.isEmpty()) return;
 
-        if (refBehaviors != null && !refBehaviors.isEmpty()) {
-            // copy over the behaviours to the multitool item stack
-            multiTag.put(ToolHelper.BEHAVIOURS_TAG_KEY, refBehaviors.copy());
+        CompoundTag behaviors = tag.getCompound(ToolHelper.BEHAVIOURS_TAG_KEY);
+
+        // store a copy of behaviours to persist them for later use
+        tag.put(TAG_BEHAVIORS + activeName, behaviors.copy());
+    }
+
+
+    public static void restoreBehaviors(ItemStack stack, GTToolType type, Material material) {
+        CompoundTag tag = stack.getOrCreateTag();
+        String savedKey = TAG_BEHAVIORS + type.name;
+
+        // check if the behaviours have been saved for this mode
+        if (tag.contains(savedKey, Tag.TAG_COMPOUND)) {
+            // restore behaviours from saved
+            tag.put(ToolHelper.BEHAVIOURS_TAG_KEY, tag.getCompound(savedKey).copy());
         } else {
-            // no behaviours for this tool, clear the one for the multitool
-            multiTag.remove(ToolHelper.BEHAVIOURS_TAG_KEY);
+            // first time this mode exists, try restore from reference item
+            var entry = GTMaterialItems.TOOL_ITEMS.get(material, type);
+            if (entry == null) return;
+            ItemStack reference = entry.get().get();
+            if (reference.isEmpty()) return;
+
+            CompoundTag refBehaviors = reference.getTagElement(ToolHelper.BEHAVIOURS_TAG_KEY);
+            if (refBehaviors != null && !refBehaviors.isEmpty()) {
+                tag.put(ToolHelper.BEHAVIOURS_TAG_KEY, refBehaviors.copy());
+
+                // save to slot too for future use
+                tag.put(savedKey, refBehaviors.copy());
+            } else {
+                tag.remove(ToolHelper.BEHAVIOURS_TAG_KEY);
+            }
         }
+    }
+
+    // drop saved behaviours for a mode
+    public static void clearSavedBehaviors(ItemStack stack, GTToolType type) {
+        CompoundTag tag = stack.getTag();
+        if (tag != null) tag.remove(TAG_BEHAVIORS + type.name);
     }
 
     public static List<MultitoolMode> getInstalled(ItemStack stack) {
@@ -138,7 +164,8 @@ public class MultitoolMode {
             toolTag.remove(ToolHelper.ATTACK_SPEED_KEY);
             toolTag.remove(ToolHelper.HARVEST_LEVEL_KEY);
 
-            syncBehaviorsTag(stack, type, material);
+            // seed initial behaviours from this tool
+            restoreBehaviors(stack, type, material); 
         }
     }
 
@@ -160,6 +187,9 @@ public class MultitoolMode {
         tag.remove(TAG_MATERIAL + type.name);
         tag.remove(TAG_MAX_CHARGE + type.name);
 
+        // we dont want to keep behaviours around after we drop a key
+        clearSavedBehaviors(stack, type);
+
         // if active mode was this one then switch to first available
         String active = tag.getString(TAG_KEY);
         if (active.equals(type.name)) {
@@ -172,7 +202,8 @@ public class MultitoolMode {
                 GTToolType nextType = GTToolType.getTypes().get(nextName);
                 Material nextMat = GTCEuAPI.materialManager.getMaterial(tag.getString(TAG_MATERIAL + nextName));
                 if (nextType != null && nextMat != null) {
-                    syncBehaviorsTag(stack, nextType, nextMat);
+                    // sync behaviours from the next tool
+                    restoreBehaviors(stack, nextType, nextMat);
                 }
             } else {
                 tag.remove(TAG_KEY);
@@ -215,6 +246,9 @@ public class MultitoolMode {
     }
 
     public static void setActive(ItemStack stack, MultitoolMode mode) {
+        // persist behaviours from current mode
+        saveCurrentBehaviors(stack); 
+
         // set the active mode
         stack.getOrCreateTag().putString(TAG_KEY, mode.id());
         CompoundTag toolTag = ToolHelper.getToolTag(stack);
@@ -225,7 +259,8 @@ public class MultitoolMode {
         toolTag.remove(ToolHelper.ATTACK_SPEED_KEY);
         toolTag.remove(ToolHelper.HARVEST_LEVEL_KEY);
 
-        syncBehaviorsTag(stack, mode.toolType(), mode.material());
+        // restore behaviours from new mode
+        restoreBehaviors(stack, mode.toolType(), mode.material());
     }
 
     public static MultitoolMode offset(ItemStack stack, int amount) {

@@ -37,6 +37,6 @@ public class LangHandler {
         provider.add("item.symbiotic_swiss_knife.gregtech_multitool.add_btn", "ADD");
         provider.add("item.symbiotic_swiss_knife.gregtech_multitool.save_btn", "SAVE");
         provider.add("block.symbiotic_swiss_knife.breaker_line", "§8-----------------------------------");
-        provider.add("message.symbiotic_swiss_knife.auto_select.no_match", "§cNo match found");
+        provider.add("message.symbiotic_swiss_knife.auto_select.no_match", "§cNo match found: {}");
     }
 }

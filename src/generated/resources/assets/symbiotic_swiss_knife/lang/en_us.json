@@ -33,5 +33,8 @@
   "key.symbiotic_swiss_knife.multitool_selector.eject": "Click to eject tool",
   "key.symbiotic_swiss_knife.multitool_selector.hint": "Scroll or Mouse to select",
   "message.symbiotic_swiss_knife.auto_select.no_match": "§cNo match found",
+  "debug.symbiotic_swiss_knife.auto_select.short": "§aShort Id: %s",
+  "debug.symbiotic_swiss_knife.auto_select.block": "§6Block Id: %s",
+  "debug.symbiotic_swiss_knife.auto_select.tags": "§eBlock Tags: %s",
   "tab.symbiotic_swiss_knife.creative": "Symbiotic Swiss Knife"
 }
