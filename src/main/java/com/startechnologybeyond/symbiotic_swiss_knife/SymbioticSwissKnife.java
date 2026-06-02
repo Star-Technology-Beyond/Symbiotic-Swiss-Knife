@@ -28,6 +28,7 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.startechnologybeyond.symbiotic_swiss_knife.item.SymbioticItemModelDatagenProvider;
 import com.startechnologybeyond.symbiotic_swiss_knife.api.SymbioticConfig;
 import com.startechnologybeyond.symbiotic_swiss_knife.api.SymbioticCreativeTab;
+import com.startechnologybeyond.symbiotic_swiss_knife.integration.SymbioticIntegration;
 import com.startechnologybeyond.symbiotic_swiss_knife.network.SymbioticNetwork;
 import com.startechnologybeyond.symbiotic_swiss_knife.recipe.RecipeSerialisers;
 
@@ -75,5 +76,6 @@ public class SymbioticSwissKnife {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         SymbioticNetwork.init();
+        SymbioticIntegration.integrationSetup(event);
     }
 }
