@@ -5,6 +5,8 @@
   "item.symbiotic_swiss_knife.gregtech_multitool.auto_select": "Auto Selecting Tool",
   "item.symbiotic_swiss_knife.gregtech_multitool.auto_select_btn": "§7Auto Config",
   "item.symbiotic_swiss_knife.gregtech_multitool.auto_select_rules_header": "Customise Auto Select Rules",
+  "item.symbiotic_swiss_knife.gregtech_multitool.drag_hint_bottom": "jump to bottom",
+  "item.symbiotic_swiss_knife.gregtech_multitool.drag_hint_top": "jump to top",
   "item.symbiotic_swiss_knife.gregtech_multitool.ejected_mode": "Ejected: %s",
   "item.symbiotic_swiss_knife.gregtech_multitool.empty": "No Installed Tools",
   "item.symbiotic_swiss_knife.gregtech_multitool.hint": "Hold the multitool selector key or scroll while holding to swap tool modes.",
@@ -32,9 +34,6 @@
   "key.symbiotic_swiss_knife.multitool_selector": "Open Multitool Selector",
   "key.symbiotic_swiss_knife.multitool_selector.eject": "Click to eject tool",
   "key.symbiotic_swiss_knife.multitool_selector.hint": "Scroll or Mouse to select",
-  "message.symbiotic_swiss_knife.auto_select.no_match": "§cNo match found",
-  "debug.symbiotic_swiss_knife.auto_select.short": "§aShort Id: %s",
-  "debug.symbiotic_swiss_knife.auto_select.block": "§6Block Id: %s",
-  "debug.symbiotic_swiss_knife.auto_select.tags": "§eBlock Tags: %s",
+  "message.symbiotic_swiss_knife.auto_select.no_match": "§cNo match found: {}",
   "tab.symbiotic_swiss_knife.creative": "Symbiotic Swiss Knife"
 }

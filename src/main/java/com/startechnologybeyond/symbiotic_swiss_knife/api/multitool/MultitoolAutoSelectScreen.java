@@ -7,6 +7,7 @@ import com.startechnologybeyond.symbiotic_swiss_knife.network.SymbioticNetwork;
 import com.startechnologybeyond.symbiotic_swiss_knife.network.packets.CPacketSaveAutoSelectRules;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -145,6 +146,7 @@ public class MultitoolAutoSelectScreen extends Screen {
     private int draggedIdx = -1;
     private int dragTargetIdx = -1;
     private double dragY = 0;
+    private boolean showDragHint = false;
 
     // state for dropdown
     private int dropdownRow = -1;
@@ -214,6 +216,7 @@ public class MultitoolAutoSelectScreen extends Screen {
         renderSave(g, mouseX, mouseY);
 
         renderFloatingDragRow(g, mouseX, mouseY);
+        renderDragHint(g);
         renderDropdownOverlay(g, mouseX, mouseY);
         renderTooltips(g, mouseX, mouseY);
     }
@@ -396,6 +399,47 @@ public class MultitoolAutoSelectScreen extends Screen {
             renderDropdown(g, mouseX, mouseY);
             g.pose().popPose();
         }
+    }
+
+    private void renderDragHint(GuiGraphics g) {
+        if (!showDragHint || draggedIdx < 0)
+            return;
+
+        Minecraft mc = Minecraft.getInstance();
+
+        // read the actual bound key names from player options
+        Component upKey = mc.options.keyUp.getTranslatedKeyMessage();
+        Component downKey = mc.options.keyDown.getTranslatedKeyMessage();
+
+        // build the two halves so the key names can be coloured differently
+        Component hint = Component.empty()
+                .append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY))
+                .append(upKey.copy().withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal("] ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(Component.translatable(
+                        "item.symbiotic_swiss_knife.gregtech_multitool.drag_hint_top")
+                        .withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("   ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY))
+                .append(downKey.copy().withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal("] ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(Component.translatable(
+                        "item.symbiotic_swiss_knife.gregtech_multitool.drag_hint_bottom")
+                        .withStyle(ChatFormatting.GRAY));
+
+        int textW = font.width(hint);
+        int hintY = panelY() + PANEL_H + PADDING_INNER;
+
+        //  backing pill
+        g.fill(
+            (width - textW) / 2 - PADDING_INNER,
+            hintY - PADDING_OUTER,
+            (width + textW) / 2 + PADDING_INNER,
+            hintY + font.lineHeight + PADDING_OUTER,
+            0x88000000
+        );
+
+        g.drawString(font, hint, (width - textW) / 2, hintY, COL_TEXT, false);
     }
 
     private void renderTooltips(GuiGraphics g, int mouseX, int mouseY) {
@@ -634,6 +678,7 @@ public class MultitoolAutoSelectScreen extends Screen {
             dragY = mouseY;
             int slot = (int) ((mouseY - listStartY()) / ROW_H) + listScroll;
             dragTargetIdx = Math.max(0, Math.min(rules.size(), slot));
+            showDragHint = true;
             return true;
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragYOffset);
@@ -656,6 +701,7 @@ public class MultitoolAutoSelectScreen extends Screen {
             }
             draggedIdx = -1;
             dragTargetIdx = -1;
+            showDragHint = false;
             return true;
         }
 
@@ -689,6 +735,20 @@ public class MultitoolAutoSelectScreen extends Screen {
         // forward key presses to regex field so it updates
         if (regexField.keyPressed(key, scanCode, modifiers)) {
             return true;
+        }
+
+        // while dragging, jump to the top and bottom depending
+        // on keyup/keydown
+        if (draggedIdx >= 0) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.options.keyUp.matches(key, scanCode)) {
+                listScroll = 0;
+                return true;
+            }
+            if (mc.options.keyDown.matches(key, scanCode)) {
+                listScroll = Math.max(0, rules.size() - VISIBLE_ROWS);
+                return true;
+            }
         }
 
         // enter in regex field should try add thhe rule
