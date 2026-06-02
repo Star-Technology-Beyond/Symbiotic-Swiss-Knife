@@ -40,3 +40,9 @@ Adds a GregTech multitool to the game named the "Symbiotic Swiss Knife"
         versionRange = "[1.7.0,)"
         ordering = "AFTER"
         side = "BOTH"
+    [[dependencies.${mod_id}]]
+        modId = "guideme"
+        mandatory = false
+        versionRange = "[20.1.0,)"
+        ordering = "NONE"
+        side = "BOTH"

@@ -2,6 +2,7 @@ package com.startechnologybeyond.symbiotic_swiss_knife.api.multitool;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.startechnologybeyond.symbiotic_swiss_knife.SymbioticSwissKnife;
+import com.startechnologybeyond.symbiotic_swiss_knife.api.SymbioticConfig;
 import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.MultitoolItem;
 import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.SymbioticMultitoolItems;
 import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.MultitoolMode;
@@ -160,7 +161,7 @@ public class MultitoolClientEvents {
 
             // mode select to server
             SymbioticNetwork.NETWORK.sendToServer(
-                    new CPacketMiddleClickAutoSelect(held.hand(), blockId, blockTags));
+                    new CPacketMiddleClickAutoSelect(held.hand(), blockId, blockTags, SymbioticConfig.DEBUG_NO_BLOCK_FOUND.get()));
 
             // send message to client
             minecraft.player.displayClientMessage(

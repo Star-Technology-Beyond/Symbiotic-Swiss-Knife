@@ -25,18 +25,21 @@ public class CPacketMiddleClickAutoSelect implements IPacket {
     private int handOrdinal;
     private String blockId;
     private Set<String> blockTags;
+    private boolean isDebug;
 
     public CPacketMiddleClickAutoSelect() {
     }
 
-    public CPacketMiddleClickAutoSelect(InteractionHand hand, String blockId, Set<String> blockTags) {
+    public CPacketMiddleClickAutoSelect(InteractionHand hand, String blockId, Set<String> blockTags, boolean isDebug) {
         this.handOrdinal = hand.ordinal();
         this.blockId = blockId;
         this.blockTags = blockTags;
+        this.isDebug = isDebug;
     }
 
     @Override
     public void encode(FriendlyByteBuf buf) {
+        buf.writeBoolean(isDebug);
         buf.writeVarInt(handOrdinal);
         buf.writeUtf(blockId, MAX_BLOCK_ID_LENGTH);
         Set<String> tags = blockTags != null ? blockTags : Set.of();
@@ -48,6 +51,7 @@ public class CPacketMiddleClickAutoSelect implements IPacket {
 
     @Override
     public void decode(FriendlyByteBuf buf) {
+        isDebug = buf.readBoolean();
         handOrdinal = buf.readVarInt();
         blockId = buf.readUtf(MAX_BLOCK_ID_LENGTH);
         int tagCount = Math.min(buf.readVarInt(), MAX_TAG_COUNT);
@@ -81,6 +85,15 @@ public class CPacketMiddleClickAutoSelect implements IPacket {
         if (best == null) {
             handler.getPlayer().sendSystemMessage(Component.translatable(
                     "message.symbiotic_swiss_knife.auto_select.no_match"));
+
+            if (isDebug) {
+                handler.getPlayer().sendSystemMessage(
+                        Component.translatable("debug.symbiotic_swiss_knife.auto_select.short", shortId));
+                handler.getPlayer().sendSystemMessage(
+                        Component.translatable("debug.symbiotic_swiss_knife.auto_select.block", blockId));
+                handler.getPlayer().sendSystemMessage(
+                        Component.translatable("debug.symbiotic_swiss_knife.auto_select.tags", tags));
+            }
             return;
         }
 

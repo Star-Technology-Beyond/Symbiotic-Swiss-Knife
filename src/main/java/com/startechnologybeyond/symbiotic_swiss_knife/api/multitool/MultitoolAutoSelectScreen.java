@@ -7,6 +7,7 @@ import com.startechnologybeyond.symbiotic_swiss_knife.network.SymbioticNetwork;
 import com.startechnologybeyond.symbiotic_swiss_knife.network.packets.CPacketSaveAutoSelectRules;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,7 +23,7 @@ import java.util.regex.PatternSyntaxException;
 public class MultitoolAutoSelectScreen extends Screen {
 
     // panel
-    private static final int PANEL_W = 340;
+    private static final int PANEL_W = 370;
     private static final int PANEL_H = 212;
     private static final int ROW_H = 18;
     private static final int VISIBLE_ROWS = 7;
@@ -46,10 +47,12 @@ public class MultitoolAutoSelectScreen extends Screen {
     // coloumn offsets and widths
     private static final int COL_HANDLE_X = 4;
     private static final int COL_HANDLE_W = 12;
-    private static final int COL_REGEX_X = 18;
-    private static final int COL_BADGE_X = 222;
+    private static final int COL_COPY_X = 16;
+    private static final int COL_COPY_W = 12;
+    private static final int COL_REGEX_X = 32;
+    private static final int COL_BADGE_X = 252;
     private static final int COL_BADGE_W = 90;
-    private static final int COL_DEL_X = 316;
+    private static final int COL_DEL_X = 346;
     private static final int COL_DEL_W = 14;
 
     // row offsets
@@ -64,14 +67,14 @@ public class MultitoolAutoSelectScreen extends Screen {
     // elements and widths
     private static final int ADD_ROW_ELEMENT_H = 16;
     private static final int ADD_FIELD_X = 4;
-    private static final int ADD_FIELD_W = 196;
+    private static final int ADD_FIELD_W = 226;
     private static final int ADD_FIELD_Y = 4;
     private static final int ADD_TICK_X = 9;
     private static final int ADD_ICON_Y = 7;
-    private static final int ADD_BTN_X = 314;
+    private static final int ADD_BTN_X = 344;
     private static final int ADD_BTN_W = 22;
     private static final int ADD_BTN_Y = 3;
-    private static final int ADD_BADGE_X = 222;
+    private static final int ADD_BADGE_X = 252;
 
     // dropdown layout
     private static final int DD_BORDER_THICKNESS = 1;
@@ -145,6 +148,7 @@ public class MultitoolAutoSelectScreen extends Screen {
     private int draggedIdx = -1;
     private int dragTargetIdx = -1;
     private double dragY = 0;
+    private boolean showDragHint = false;
 
     // state for dropdown
     private int dropdownRow = -1;
@@ -214,6 +218,7 @@ public class MultitoolAutoSelectScreen extends Screen {
         renderSave(g, mouseX, mouseY);
 
         renderFloatingDragRow(g, mouseX, mouseY);
+        renderDragHint(g);
         renderDropdownOverlay(g, mouseX, mouseY);
         renderTooltips(g, mouseX, mouseY);
     }
@@ -241,7 +246,7 @@ public class MultitoolAutoSelectScreen extends Screen {
         g.drawString(font, Component.translatable("item.symbiotic_swiss_knife.gregtech_multitool.pattern_header"),
                 px + COL_REGEX_X, py + COL_TITLE_Y, COL_DIM, false);
         g.drawString(font, Component.translatable("item.symbiotic_swiss_knife.gregtech_multitool.tool_header"),
-                px + COL_BADGE_X + BOTTOM_SECTION_OFFSET, py + COL_TITLE_Y, COL_DIM, false);
+                px + COL_BADGE_X, py + COL_TITLE_Y, COL_DIM, false);
 
         // add divider to rows
         g.fill(px + PADDING_OUTER, py + HEADER_DIVIDER_Y, px + PANEL_W - PADDING_OUTER,
@@ -398,6 +403,47 @@ public class MultitoolAutoSelectScreen extends Screen {
         }
     }
 
+    private void renderDragHint(GuiGraphics g) {
+        if (!showDragHint || draggedIdx < 0)
+            return;
+
+        Minecraft mc = Minecraft.getInstance();
+
+        // read the actual bound key names from player options
+        Component upKey = mc.options.keyUp.getTranslatedKeyMessage();
+        Component downKey = mc.options.keyDown.getTranslatedKeyMessage();
+
+        // build the two halves so the key names can be coloured differently
+        Component hint = Component.empty()
+                .append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY))
+                .append(upKey.copy().withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal("] ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(Component.translatable(
+                        "item.symbiotic_swiss_knife.gregtech_multitool.drag_hint_top")
+                        .withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("   ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY))
+                .append(downKey.copy().withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal("] ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(Component.translatable(
+                        "item.symbiotic_swiss_knife.gregtech_multitool.drag_hint_bottom")
+                        .withStyle(ChatFormatting.GRAY));
+
+        int textW = font.width(hint);
+        int hintY = panelY() + PANEL_H + PADDING_INNER;
+
+        //  backing pill
+        g.fill(
+            (width - textW) / 2 - PADDING_INNER,
+            hintY - PADDING_OUTER,
+            (width + textW) / 2 + PADDING_INNER,
+            hintY + font.lineHeight + PADDING_OUTER,
+            0x88000000
+        );
+
+        g.drawString(font, hint, (width - textW) / 2, hintY, COL_TEXT, false);
+    }
+
     private void renderTooltips(GuiGraphics g, int mouseX, int mouseY) {
         // render hover tooltips if necessary for a rule
         // since rules can overflow the little row
@@ -418,6 +464,14 @@ public class MultitoolAutoSelectScreen extends Screen {
         // draw the little drag icon
         g.drawString(font, "≡", px + COL_HANDLE_X + DIVIDER_THICKNESS, rowY + ROW_TEXT_Y,
                 isFloating ? COL_ACCENT : COL_DIM, false);
+
+        // draw the little copy icon
+        boolean copyHov = !isDragging
+                && hit(mouseX, mouseY, px + COL_COPY_X, rowY + DEL_BTN_MARGIN_Y, COL_COPY_W, ROW_H - DEL_BTN_SHRINK_Y);
+        g.drawCenteredString(font, "❐",
+                px + COL_COPY_X + COL_COPY_W / 2, rowY + ROW_TEXT_Y,
+                copyHov ? COL_ACCENT : COL_DIM);
+
 
         // draw the rule text, truncate to fit the size tho
         // (hover handles full string)
@@ -505,6 +559,11 @@ public class MultitoolAutoSelectScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // unfocus regex field if clicking outside it
+        if (!hit(mouseX, mouseY, regexField.getX(), regexField.getY(), regexField.getWidth(), regexField.getHeight())) {
+            regexField.setFocused(false);
+        }
+            
         // propority dropdown > list > add row > footer
         // since dropdown can draw ontop of list/add row
         // we dont want it to fall through
@@ -567,6 +626,12 @@ public class MultitoolAutoSelectScreen extends Screen {
             if (hit(mouseX, mouseY, px + COL_DEL_X, rowY + DEL_BTN_MARGIN_Y, COL_DEL_W, ROW_H - DEL_BTN_SHRINK_Y)) {
                 rules.remove(idx);
                 listScroll = Math.max(0, Math.min(listScroll, rules.size() - VISIBLE_ROWS));
+                return true;
+            }
+
+            // copy row rules to clipboard
+            if (hit(mouseX, mouseY, px + COL_COPY_X, rowY + DEL_BTN_MARGIN_Y, COL_COPY_W, ROW_H - DEL_BTN_SHRINK_Y)) {
+                Minecraft.getInstance().keyboardHandler.setClipboard(rules.get(idx).pattern());
                 return true;
             }
 
@@ -634,6 +699,7 @@ public class MultitoolAutoSelectScreen extends Screen {
             dragY = mouseY;
             int slot = (int) ((mouseY - listStartY()) / ROW_H) + listScroll;
             dragTargetIdx = Math.max(0, Math.min(rules.size(), slot));
+            showDragHint = true;
             return true;
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragYOffset);
@@ -656,6 +722,7 @@ public class MultitoolAutoSelectScreen extends Screen {
             }
             draggedIdx = -1;
             dragTargetIdx = -1;
+            showDragHint = false;
             return true;
         }
 
@@ -689,6 +756,20 @@ public class MultitoolAutoSelectScreen extends Screen {
         // forward key presses to regex field so it updates
         if (regexField.keyPressed(key, scanCode, modifiers)) {
             return true;
+        }
+
+        // while dragging, jump to the top and bottom depending
+        // on keyup/keydown
+        if (draggedIdx >= 0) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.options.keyUp.matches(key, scanCode)) {
+                listScroll = 0;
+                return true;
+            }
+            if (mc.options.keyDown.matches(key, scanCode)) {
+                listScroll = Math.max(0, rules.size() - VISIBLE_ROWS);
+                return true;
+            }
         }
 
         // enter in regex field should try add thhe rule
