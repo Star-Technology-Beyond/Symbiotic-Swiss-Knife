@@ -16,3 +16,8 @@ preventing any area-of-effect behaviour the active tool would normally have.
 
 Toggle single block mode from the radial selector screen.
 
+## Ghost Blocks
+
+If a veinminer mod is being used or something similar, one to two ghosts blocks may appear. Simply
+continue holding down the left click and move your cursor onto one of the non-ghost blocks nearby,
+the ghost blocks should turn back into the normal blocks.

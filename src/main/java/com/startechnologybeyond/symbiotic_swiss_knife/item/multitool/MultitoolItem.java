@@ -44,6 +44,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class MultitoolItem extends GTToolItem {
 
@@ -600,5 +601,9 @@ public class MultitoolItem extends GTToolItem {
 
     public static void clearSwingLock(java.util.UUID uuid) {
         swingLocked.remove(uuid);
+    }
+
+    public static boolean isBreakLocked(UUID uuid) {
+        return swingLocked.contains(uuid);
     }
 }

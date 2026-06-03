@@ -2,6 +2,7 @@ package com.startechnologybeyond.symbiotic_swiss_knife.network.packets;
 
 import com.lowdragmc.lowdraglib.networking.IHandlerContext;
 import com.lowdragmc.lowdraglib.networking.IPacket;
+import com.startechnologybeyond.symbiotic_swiss_knife.api.multitool.MultitoolServerEvents;
 import com.startechnologybeyond.symbiotic_swiss_knife.item.multitool.MultitoolItem;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
@@ -37,5 +38,6 @@ public class CPacketReleaseSingleBlockLock implements IPacket {
         // remove the uuid from swing lock to permit them to
         // continue breaking blocks again
         MultitoolItem.clearSwingLock(player.getUUID());
+        MultitoolServerEvents.clearBreakConsumed(player.getUUID());
     }
 }
