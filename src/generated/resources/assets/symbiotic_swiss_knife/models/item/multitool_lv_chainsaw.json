@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "symbiotic_swiss_knife:item/tools/lv_chainsaw",
-    "layer1": "symbiotic_swiss_knife:item/tools/active_tool"
+    "layer0": "symbiotic_swiss_knife:item/tools/head_power_chainsaw",
+    "layer1": "symbiotic_swiss_knife:item/tools/body_power_chainsaw"
   }
 }
