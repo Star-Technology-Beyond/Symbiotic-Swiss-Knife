@@ -27,7 +27,7 @@ public class SymbioticItems {
             .item("luv_power_unit", ComponentItem::create)
             .lang("LuV Power Unit")
             .properties(p -> p.stacksTo(8))
-            .model((ctx, prov) -> prov.generated(ctx, prov.modLoc("item/tools/active_tool")))
+            .model((ctx, prov) -> prov.generated(ctx, prov.modLoc("item/tools/luv_power_unit")))
             .onRegister(attach(ElectricStats.createElectricItem(102400000, GTValues.LuV)))
             .register();
 

@@ -13,8 +13,8 @@ public class SymbioticItemModelDatagenProvider {
         for (GTToolType type : GTToolType.getTypes().values()) {
             provider.getBuilder("multitool_" + type.name)
                     .parent(new ModelFile.UncheckedModelFile("item/handheld"))
-                    .texture("layer0", "symbiotic_swiss_knife:item/tools/" + type.name)
-                    .texture("layer1", "symbiotic_swiss_knife:item/tools/active_tool");
+                    .texture("layer0", "symbiotic_swiss_knife:item/tools/head_" + type.name)
+                    .texture("layer1", "symbiotic_swiss_knife:item/tools/body_" + type.name);
         }
 
         // empty multitool model

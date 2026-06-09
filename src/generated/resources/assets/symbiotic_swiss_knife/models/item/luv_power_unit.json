@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "symbiotic_swiss_knife:item/tools/active_tool"
+    "layer0": "symbiotic_swiss_knife:item/tools/luv_power_unit"
   }
 }
