@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "symbiotic_swiss_knife:item/tools/head_power_wrench",
-    "layer1": "symbiotic_swiss_knife:item/tools/body_power_wrench"
+    "layer0": "symbiotic_swiss_knife:item/tools/head_hv_wrench",
+    "layer1": "symbiotic_swiss_knife:item/tools/body_hv_wrench"
   }
 }

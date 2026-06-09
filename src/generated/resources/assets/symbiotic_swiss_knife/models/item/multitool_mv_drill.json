@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "symbiotic_swiss_knife:item/tools/head_power_drill",
-    "layer1": "symbiotic_swiss_knife:item/tools/body_power_drill"
+    "layer0": "symbiotic_swiss_knife:item/tools/head_mv_drill",
+    "layer1": "symbiotic_swiss_knife:item/tools/body_mv_drill"
   }
 }
