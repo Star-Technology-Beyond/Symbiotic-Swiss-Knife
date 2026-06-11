@@ -230,16 +230,6 @@ public class MultitoolRadialScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (installedModes.isEmpty())
-            return true;
-        MultitoolMode next = MultitoolMode.offset(stack, delta > 0 ? -1 : 1);
-        if (next != null)
-            select(next);
-        return true;
-    }
-
-    @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         // letting go should select the hovered mode
         if (MultitoolClientEvents.OPEN_SELECTOR.matches(keyCode, scanCode)) {

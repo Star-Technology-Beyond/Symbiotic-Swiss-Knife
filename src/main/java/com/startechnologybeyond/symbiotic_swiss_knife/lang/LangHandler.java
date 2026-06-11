@@ -12,7 +12,7 @@ public class LangHandler {
                 "Hold the multitool selector key or scroll while holding to swap tool modes.");
         provider.add("key.categories.symbiotic_swiss_knife", "Symbiotic Swiss Knife");
         provider.add("key.symbiotic_swiss_knife.multitool_selector", "Open Multitool Selector");
-        provider.add("key.symbiotic_swiss_knife.multitool_selector.hint", "Scroll or Mouse to select");
+        provider.add("key.symbiotic_swiss_knife.multitool_selector.hint", "Move mouse to select");
         provider.add("key.symbiotic_swiss_knife.multitool_selector.eject", "Click to eject tool");
         provider.add("item.symbiotic_swiss_knife.gregtech_multitool.empty", "No Installed Tools");
         provider.add("item.symbiotic_swiss_knife.gregtech_multitool.line", "§c§lGregTech Multitool");
